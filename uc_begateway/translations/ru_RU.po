@@ -124,3 +124,26 @@ msgstr "Сумма аннулирования"
 msgid "There are no orders yet. Please create one."
 msgstr "Заказов пока нет. Пожалуйста, создайте один."
 
+msgid "The payment gateway is currently unavailable, please chose another payment method, or contact an administrator."
+msgstr "Платёжная система временно не доступна. Выберите другой способ оплаты или свяжитесь с администратором магазина."
+
+msgid "UID: "
+msgstr "UID: "
+
+msgid "Refunded successfully."
+msgstr "Возврат средств успешен."
+
+msgid "Refund error:"
+msgstr "Ошибка возврата средств:"
+
+msgid "Captured successfully."
+msgstr "Списано успешно."
+
+msgid "Capture error:"
+msgstr "Ошибка списания:"
+
+msgid "Voided successfully."
+msgstr "Авторизация средств отменена"
+
+msgid "Void error:"
+msgstr "Ошибка отмены авторизации:"

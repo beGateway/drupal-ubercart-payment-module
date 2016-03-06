@@ -1,37 +1,35 @@
-# Модуль оплаты beGateway для  Drupal Ubercart
+# Модуль оплаты beGateway для Drupal Ubercart
 
 ## Установка
 
-* Папку с модулем положите в (sites/all/modules/uc_begateway)
-
-* В папку (sites / all / libraries / beGateway) положите библиотеку
- [download url] (https://github.com/beGateway/begateway-api-php)
-
-* Настройка вашего модуля находиться в /admin/store/settings/payment/method/begateway
-
-* Список заказов и работа c транзакциями находиться в /admin/config/uc_begateway/orders
+  * [Скачайте](https://github.com/beGateway/drupal-ubercart-payment-module/blob/master/uc_begateway.zip?raw=true) архив с модулем и распакуйте его
+  * Папку `uc_begateway` с модулем положите в `sites/all/modules`
+  * Убедитесь, что Drupal модуль [libraries](https://www.drupal.org/project/libraries) установлен и включен
+  * [Скачайте](https://github.com/beGateway/drupal-ubercart-payment-module/blob/master/uc_begateway_library.zip?raw=true) архив библиотеки и распакуйте его
+  * Папку `beGateway` библиотеки положите в `sites/all/libraries`
+  * Включите модуль `beGateway` в _UBERCART - PAYMENT_
+  * Настройка модуля находятся в `/admin/store/settings/payment`
+  * Список заказов и работа c транзакциями находятся в `/admin/config/uc_begateway/orders`
 
 
 ### Вы можете использовать следующие данные, чтобы настроить способ оплаты в тестовом режиме
 
-* Идентификационный номер магазина - 361
-
-* Секретный ключ магазина - b8647b68898b084b836474ed8d61ffe117c9a01168d867f24953b776ddcb134d
-
-* Домен платежного шлюза - demo-gateway.begateway.com
-
-* Домен платежной страницы - checkout.begateway.com
+* Идентификационный номер магазина: _361_
+* Секретный ключ магазина: _b8647b68898b084b836474ed8d61ffe117c9a01168d867f24953b776ddcb134d_
+* Домен платежного шлюза: _demo-gateway.begateway.com_
+* Домен платежной страницы: _checkout.begateway.com_
 
 ### Используйте следующий тестовый набор для тестового платежа:
-* Номер карты 4200000000000000
 
-* Имя на карте John Doe
+* Номер карты _4200000000000000_
+* Имя на карте _John Doe_
+* Месяц срока действия карты _01_, чтобы получить успешный платеж
+* Месяц срока действия карты _10_, чтобы получить неуспешный платеж
+* CVC _123_
 
-* Месяц срока действия карты 01, чтобы получить успешный платеж
+## Примечание
 
-* Месяц срока действия карты 10, чтобы получить неуспешный платеж
-
-* CVC 123
+Разработано и протестировано в Drupal 7 и PHP 5.3+
 
 
 # Module payment beGateway for Drupal Ubercart
@@ -48,24 +46,30 @@
 
 * List of order and transactions are in (/admin/config/uc_begateway/orders)
 
-### You can use the following information to adjust the payment method in test mode:
+* [Download](https://github.com/beGateway/drupal-ubercart-payment-module/blob/master/uc_begateway.zip?raw=true) module archive and unpack it
+* Put the directory `uc_begateway` to `sites/all/modules`
+* Make sure the Drupal module [libraries](https://www.drupal.org/project/libraries) is installed and enabled
+* [Download](https://github.com/beGateway/drupal-ubercart-payment-module/blob/master/uc_begateway_library.zip?raw=true) library archive and unpack it
+* Put the `beGateway` directory to `sites/all/libraries`
+* Enable the module `beGateway` in _UBERCART - PAYMENT_
+* You can find out the module settings there `/admin/store/settings/payment`
+* Orders list and transactions manager is there `/admin/config/uc_begateway/orders`
 
-* Identification number of the store - 361
+### Use the following information to adjust the payment method in test mode:
 
-* The private key store - b8647b68898b084b836474ed8d61ffe117c9a01168d867f24953b776ddcb134d
- 
-* Domain payment gateway - demo-gateway.begateway.com
+* Shop ID: _361_
+* Shop Key: _b8647b68898b084b836474ed8d61ffe117c9a01168d867f24953b776ddcb134d_
+* Payment gateway domain: _demo-gateway.begateway.com_
+* Checkout page domain: _checkout.begateway.com_
 
-* Domain payment page - checkout.begateway.com
+###  Use the following test set to test payment:
 
-###  Use the following test kit to test payment:
+* Card number _4200000000000000_
+* Card name _John Doe_
+* Card month _01_ to get a successful payment
+* Card month _10_ to get an unsuccessful delivery
+* CVC _123_
 
-* Card number 4200000000000000
+## Notes
 
-* The name on the map of John Doe
-
-* Month card expires 01 to get a successful payment
-
-* Month card expires 10 to get an unsuccessful delivery
-
-* CVC 123
+Tested and developed with Drupal 7 and PHP 5.3+

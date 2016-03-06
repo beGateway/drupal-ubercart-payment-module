@@ -49,7 +49,6 @@ function uc_begateway_menu() {
   return $items;
 }
 
-
 /**
  * Handling Notification_URL.
  */
@@ -66,7 +65,7 @@ function uc_begateway_notification() {
 
   $webhook = new \beGateway\Webhook;
 
-  if ($webhook->isSuccess()) {
+  if ($webhook->isAuthorized() && $webhook->isSuccess()) {
 
     $uniq = db_query('SELECT parent_uid FROM {begateway_payments} WHERE parent_uid = :rid', array(':rid' => $webhook->getUid()))->fetchField();
     if ($uniq == '') {
@@ -108,7 +107,6 @@ function uc_begateway_notification() {
   }
 
 }
-
 
 /**
  * Build page with table orders.
@@ -209,7 +207,6 @@ function uc_begateway_payments() {
 
 }
 
-
 /**
  * Refund confirmation transaction.
  *
@@ -258,7 +255,6 @@ function uc_begateway_refund_form($form, &$form_state, $order_id) {
   return $form;
 
 }
-
 
 /**
  * Refund validation form.
@@ -335,7 +331,7 @@ function uc_begateway_refund_form_submit($form, &$form_state) {
       'parent_uid' => $refund_response->getUid(),
       'flag' => 0,
     ))->condition('id', $id)->execute();
-    drupal_set_message("Refund message: " . $refund_response->getMessage() . PHP_EOL);
+    drupal_set_message(t("Refunded successfully.") . ' ' . t("UID: ") . $refund_response->getUid() . PHP_EOL);
 
     $comment = t('Transaction ID: @PayId, Refunded: ' . uc_currency_format($price, $order->currency . ' ').' Remote ID: '.$refund_response->getUid(), array('@PayId' => $order->order_id));
     uc_payment_enter($order->order_id, 'begateway', -1 * $price, 1, NULL, $comment);
@@ -344,7 +340,7 @@ function uc_begateway_refund_form_submit($form, &$form_state) {
 
   }
   else {
-    drupal_set_message("Refund message: " . $refund_response->getMessage() . PHP_EOL, 'error');
+    drupal_set_message(t("Refund error:") . ' ' . $refund_response->getMessage(), 'error');
   }
 
   drupal_goto('/admin/config/uc_begateway/orders');
@@ -469,8 +465,7 @@ function uc_begateway_capture_form_submit($form, &$form_state) {
       'parent_uid' => $capture_response->getUid(),
       'flag' => $flag,
     ))->condition('id', $id)->execute();
-    drupal_set_message("Capture successfuly" . PHP_EOL . "Capture message: " . $capture_response->getMessage() . PHP_EOL);
-
+    drupal_set_message(t("Captured successfully.") . ' ' . t('UID: ') . $capture_response->getUid());
 
     $comment = t('Transaction ID: @PayId, Captured: ' . uc_currency_format($price, $order->currency .' ').' Remote ID: '.$capture_response->getUid(), array('@PayId' => $order->order_id));
     uc_payment_enter($order->order_id, 'begateway', $price, 1, NULL, $comment);
@@ -480,7 +475,7 @@ function uc_begateway_capture_form_submit($form, &$form_state) {
 
   }
   else {
-    drupal_set_message("Capture message: " . $capture_response->getMessage() . PHP_EOL, 'error');
+    drupal_set_message(t("Capture error:") . ' ' . $capture_response->getMessage(), 'error');
   }
 
   drupal_goto('/admin/config/uc_begateway/orders');
@@ -571,12 +566,11 @@ function uc_begateway_void_form_submit($form, &$form_state) {
 
     uc_order_update_status($order->order_id, 'canceled');
 
-    drupal_set_message("Void message: " . $void_response->getMessage() . PHP_EOL);
+    drupal_set_message(t('Voided successfully.') . ' ' . t('UID: ') . $void_response->getUid());
 
   }
   else {
-    drupal_set_message("Void message: " . $void_response->getMessage() . PHP_EOL, 'error');
-
+    drupal_set_message(t("Void error:") . ' ' . $void_response->getMessage(), 'error');
   }
 
   drupal_goto('/admin/config/uc_begateway/orders');
@@ -684,14 +678,16 @@ function uc_begateway_form($form, &$form_state, $order) {
     $transaction->setAuthorizationTransactionType();
   }
 
-  $country = db_query("SELECT country_iso_code_2 FROM {uc_countries} WHERE country_id = :id", array(':id' => $order->delivery_country))->fetchField();
+  $billing_country = uc_get_country_data(array('country_id' => $order->billing_country));
+  $notification_url = url('uc_begateway/route/' . $order->order_id, array('absolute' => TRUE));
+  $notification_url = str_replace('carts.local', 'webhook.begateway.com:8443', $notification_url);
 
   $transaction->money->setAmount($order->order_total);
   $transaction->money->setCurrency($order->currency);
   $transaction->setDescription(t('Order #') . $order->order_id);
-  $transaction->setLanguage(begateway_language($language->language));
+  $transaction->setLanguage($language->language);
 
-  $transaction->setNotificationUrl(url('uc_begateway/route/' . $order->order_id, array('absolute' => TRUE)));
+  $transaction->setNotificationUrl($notification_url);
 
   $transaction->setSuccessUrl(url('cart/begateway/complete/' . $order->order_id, array('absolute' => TRUE)));
 
@@ -702,30 +698,38 @@ function uc_begateway_form($form, &$form_state, $order) {
 
   $transaction->customer->setFirstName($order->billing_first_name);
   $transaction->customer->setLastName($order->billing_last_name);
-  $transaction->customer->setCountry($country);
+  if ($billing_country) {
+    $transaction->customer->setCountry($billing_country[0]['country_iso_code_2']);
+    if (in_array($billing_country[0]['country_iso_code_2'], array('US','CA'))) {
+      $transaction->customer->setState(uc_get_zone_code($order->billing_zone));
+    }
+  }
 
   $transaction->customer->setAddress($order->billing_street1);
   $transaction->customer->setCity($order->billing_city);
   $transaction->customer->setZip($order->billing_postal_code);
-  $transaction->customer->setIp($_SERVER['REMOTE_ADDR']);
   $transaction->customer->setEmail($order->primary_email);
   $transaction->setAddressHidden();
 
   $response = $transaction->submit();
 
-  $form['#action'] = $response->getRedirectUrl();
+  if ($response->isSuccess()) {
+    $form['#action'] = $response->getRedirectUrl();
 
-
-
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Submit Order'),
-  );
+    $form['actions'] = array('#type' => 'actions');
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit Order'),
+    );
+  } else {
+    watchdog('commerce_payment_begateway', 'The website failed to get a payment token', array(), WATCHDOG_ERROR);
+    drupal_set_message(t('The payment gateway is currently unavailable, please chose another payment method, or contact an administrator.'), 'error');
+    drupal_set_message($response->getMessage(),'error');
+    drupal_goto('cart/checkout');
+  }
 
   return $form;
 }
-
 
 /**
  * Implements hook_complete().
@@ -737,33 +741,12 @@ function uc_begateway_complete() {
   }
 }
 
-
-/**
- * implementation of the language selection for beGateway.
- *
- * @param $lang_id
- * @return string
- */
-function begateway_language($lang_id) {
-
-  $languages = array('en', 'ru', 'es', 'fr', 'it', 'zh', 'de', 'tr');
-
-  if (in_array($lang_id, $languages)) {
-    return $lang_id;
-  }
-  else {
-    return 'en';
-  }
-
-}
-
-
 /**
  * Implements hook_libraries_info().
  */
 function uc_begateway_libraries_info() {
   $libraries['beGateway'] = array(
-    'name' => 'beGateway library php',
+    'name' => 'beGateway PHP library',
     'vendor url' => 'https://github.com/beGateway/begateway-api-php/tree/master',
     'download url' => 'https://github.com/beGateway/begateway-api-php/tree/master',
     'version arguments' => array(
@@ -778,5 +761,3 @@ function uc_begateway_libraries_info() {
   );
   return $libraries;
 }
-
-
