@@ -36,16 +36,6 @@
 
 ## Installation
 
-*  Folder with a module put in (sites/all/modules/uc_begateway)
-
-*  Put the library in a folder (sites / all / libraries / beGateway)
-    Make sure the path to the library file becomes: (sites/all/libraries/beGateway)
-    [download url] (https://github.com/beGateway/begateway-api-php)
-
-* Module settings are in (/admin/store/settings/payment/method/begateway)
-
-* List of order and transactions are in (/admin/config/uc_begateway/orders)
-
 * [Download](https://github.com/beGateway/drupal-ubercart-payment-module/blob/master/uc_begateway.zip?raw=true) module archive and unpack it
 * Put the directory `uc_begateway` to `sites/all/modules`
 * Make sure the Drupal module [libraries](https://www.drupal.org/project/libraries) is installed and enabled
