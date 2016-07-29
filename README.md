@@ -23,8 +23,8 @@
 
 * Номер карты _4200000000000000_
 * Имя на карте _John Doe_
-* Месяц срока действия карты _01_, чтобы получить успешный платеж
-* Месяц срока действия карты _10_, чтобы получить неуспешный платеж
+* Месяц срока действия карты _01_ и год _25_, чтобы получить успешный платеж
+* Месяц срока действия карты _10_ и год _25_, чтобы получить неуспешный платеж
 * CVC _123_
 
 ## Примечание
@@ -56,8 +56,8 @@
 
 * Card number _4200000000000000_
 * Card name _John Doe_
-* Card month _01_ to get a successful payment
-* Card month _10_ to get an unsuccessful delivery
+* Card month _01_ and year _25_ to get a successful payment
+* Card month _10_ and year _25_ to get an unsuccessful payment
 * CVC _123_
 
 ## Notes
