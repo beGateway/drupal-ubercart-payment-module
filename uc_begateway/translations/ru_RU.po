@@ -62,13 +62,13 @@ msgid "Refund"
 msgstr "Возвратить"
 
 msgid "Capture"
-msgstr "Захватить"
+msgstr "Списать"
 
 msgid "Captured"
-msgstr "Захваченно"
+msgstr "Списано"
 
 msgid "Display payment name"
-msgstr "Имя оплаты для показа"
+msgstr "Имя способа оплаты"
 
 msgid "Shop ID"
 msgstr "Идентификационный номер магазина"
@@ -147,3 +147,6 @@ msgstr "Авторизация средств отменена"
 
 msgid "Void error:"
 msgstr "Ошибка отмены авторизации:"
+
+msgid "Transaction ID: @PayId, Paid amount: @PaidAmount, Remoted ID: @UID, Payment method: @PayMethod"
+msgstr "Идентификатор операции: @PayId, Оплаченная сумма: @PaidAmount, Идентификатор операции платёжной системы: @UID, Способ оплаты: @PayMethod"
