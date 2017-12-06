@@ -1,6 +1,4 @@
 <?php
-
-
 /**
  * Implements hook_menu().
  */
@@ -53,9 +51,6 @@ function uc_begateway_menu() {
  * Handling Notification_URL.
  */
 function uc_begateway_notification() {
-  $order_id = arg(2);
-  $order = uc_order_load($order_id);
-
   libraries_load('beGateway');
 
   \beGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
@@ -65,47 +60,64 @@ function uc_begateway_notification() {
 
   $webhook = new \beGateway\Webhook;
 
-  if ($webhook->isAuthorized() && $webhook->isSuccess()) {
+  $order_id = intval($webhook->getTrackingId());
+  $order = uc_order_load($order_id);
 
-    $uniq = db_query('SELECT parent_uid FROM {begateway_payments} WHERE parent_uid = :rid', array(':rid' => $webhook->getUid()))->fetchField();
-    if ($uniq == '') {
-      if (variable_get('begateway_trans_type') != 'one') {
-        $query = db_insert('begateway_payments')->fields(array(
-          'order_id' => $order->order_id,
-          'created' => time(),
-          'uid' => $order->uid,
-          'price' => $order->order_total,
-          'parent_uid' => $webhook->getUid(),
-          'status' => 'paid',
-          'types' => 'payment',
-          'flag' => '1',
-        ))->execute();
-
-        $comment = t('Transaction ID: @PayId, Payment: ' . uc_currency_format($order->order_total, $order->currency . ' ').' Remote ID: '.$webhook->getUid(), array('@PayId' => $order->order_id));
-        uc_payment_enter($order->order_id, 'begateway', $order->order_total, 1, NULL, $comment);
-        uc_cart_complete_sale($order);
-        uc_order_update_status($order->order_id, 'payment_received');
-      }
-      else {
-        $query = db_insert('begateway_payments')->fields(array(
-          'order_id' => $order->order_id,
-          'created' => time(),
-          'uid' => $order->uid,
-          'price' => $order->order_total,
-          'parent_uid' => $webhook->getUid(),
-          'status' => 'pending',
-          'types' => 'authorization',
-          'flag' => '1',
-        ))->execute();
-
-        uc_order_update_status($order->order_id, 'pending');
-      }
-
-      $_SESSION['uc_checkout'][$_SESSION['cart_order']]['do_complete'] = TRUE;
-      drupal_goto('cart/checkout/complete');
-    }
+  if ($order == FALSE) {
+    watchdog('ubercart_payment_begateway', 'IPN attempted for non-existent order @order_id.', array('@order_id' => $order_id), WATCHDOG_ERROR);
+    die('ERROR01');
   }
 
+  if ($webhook->isAuthorized()) {
+
+      $t_type = $webhook->getResponse()->transaction->type;
+      $p_status = NULL;
+
+      if ($webhook->isPending() || $webhook->isIncomplete()) {
+        $p_status = 'pending';
+      } elseif ($webhook->isSuccess()) {
+        if ($t_type == 'authorization') { $p_status = 'pending'; }
+        if ($t_type == 'payment') { $p_status = 'paid'; }
+      }
+
+      if ($p_status != NULL) {
+        $query = db_insert('begateway_payments')->fields(array(
+          'order_id' => $order->order_id,
+          'created' => time(),
+          'uid' => $order->uid,
+          'price' => $order->order_total,
+          'parent_uid' => $webhook->getUid(),
+          'status' => $p_status,
+          'types' => $t_type,
+          'flag' => '1',
+        ))->execute();
+
+        $money = new \beGateway\Money;
+
+        $money->setCents($webhook->getResponse()->transaction->amount);
+        $money->setCurrency($webhook->getResponse()->transaction->currency);
+
+        $comment = t('Transaction ID: @PayId, Paid amount: @PaidAmount, Remote ID: @UID, Payment method: @PayMethod',
+          array(
+            '@PayId' => $order->order_id,
+            '@PaidAmount' => $money->getAmount() . ' ' . $money->getCurrency(),
+            '@UID' => $webhook->getUid(),
+            '@PayMethod' => $webhook->getPaymentMethod()
+          )
+        );
+        uc_payment_enter($order->order_id, 'begateway', $order->order_total, $order->uid, NULL, $comment);
+
+        if ($webhook->isSuccess() && $p_status == 'paid') {
+          uc_cart_complete_sale($order);
+          uc_order_update_status($order->order_id, 'payment_received');
+        } elseif ($p_status == 'pending') {
+          uc_order_update_status($order->order_id, 'pending');
+        }
+        die('OK');
+      }
+    } else {
+      die('ERROR02');
+    }
 }
 
 /**
@@ -139,7 +151,6 @@ function uc_begateway_payments() {
     'parent_uid'
   ))->execute();
 
-
   while ($value = $query->fetchAssoc()) {
     $date = format_date($value['created'], 'custom', 'Y-m-d - H:i:s');
 
@@ -152,51 +163,47 @@ function uc_begateway_payments() {
       if ($value['types'] == 'authorization') {
 
         if ($value['status'] == 'successful' || $value['status'] == 'captured') {
-          $title = 'Refund';
+          $title = t('Refund');
           $refund_capture_link = 'admin/config/' . $value['id'] . '/uc_begateway/refund';
 
         }
         else {
-          $title = 'Capture';
+          $title = t('Capture');
           $refund_capture_link = 'admin/config/' . $value['id'] . '/uc_begateway/capture';
 
-          $title2 = 'Void';
+          $title2 = t('Void');
           $void_link = 'admin/config/' . $value['id'] . '/uc_begateway/void';
         }
 
       }
       else {
-        $title = 'Refund';
+        $title = t('Refund');
         $refund_capture_link = 'admin/config/' . $value['id'] . '/uc_begateway/refund';
-
       }
     }
 
     if ($value['flag'] == '2') {
       $title2 = '';
       $void_link = '';
-      $title = 'Refund';
+      $title = t('Refund');
       $refund_capture_link = 'admin/config/' . $value['id'] . '/uc_begateway/refund';
     }
-
 
     $order = uc_order_load($value['order_id']);
     $user = entity_metadata_wrapper('user', $value['uid']);
 
     $rows[] = array(
       $value['id'],
-      l(t('Commerce order: @id', array('@id' => $value['order_id'])), 'admin/store/orders/' . $value['order_id']),
+      l(t('Ubercart order: @id', array('@id' => $value['order_id'])), 'admin/store/orders/' . $value['order_id']),
       $date,
-      l(t($user->name->value()), 'user/' . $user->uid->value()) . '<br />' . $user->mail->value(),
+      l($user->name->value(), 'user/' . $user->uid->value()) . '<br />' . $user->mail->value(),
       $value['parent_uid'],
       t('Order amount: @amount', array('@amount' => uc_currency_format($order->order_total, $order->currency . ': '))),
-      t($value['types']),
-      t($value['status']),
-      l(t($title), $refund_capture_link) . '<br />' . l(t($title2), $void_link),
+      $value['types'],
+      $value['status'],
+      l($title, $refund_capture_link) . '<br />' . l($title2, $void_link),
     );
-
   }
-
 
   if (!count($rows)) {
     return t('There are no orders yet. Please create one.');
@@ -204,7 +211,6 @@ function uc_begateway_payments() {
   else {
     return theme('table', array('header' => $header, 'rows' => $rows));
   }
-
 }
 
 /**
@@ -215,7 +221,6 @@ function uc_begateway_payments() {
  * @param $order_id
  * @return array
  */
-
 function uc_begateway_refund_form($form, &$form_state, $order_id) {
 
   $form_state['order_id'] = $order_id;
@@ -288,7 +293,6 @@ function uc_begateway_refund_form_validate($form, &$form_state) {
 
 }
 
-
 /**
  * Refund transaction.
  *
@@ -333,7 +337,14 @@ function uc_begateway_refund_form_submit($form, &$form_state) {
     ))->condition('id', $id)->execute();
     drupal_set_message(t("Refunded successfully.") . ' ' . t("UID: ") . $refund_response->getUid() . PHP_EOL);
 
-    $comment = t('Transaction ID: @PayId, Refunded: ' . uc_currency_format($price, $order->currency . ' ').' Remote ID: '.$refund_response->getUid(), array('@PayId' => $order->order_id));
+    $comment = t('Transaction ID: @PayId. Refunded: @RefundedAmount. Remote ID: @Uid',
+      array(
+        '@PayId' => $order->order_id,
+        '@RefundedAmount' => uc_currency_format($price, $order->currency . ' '),
+        '@Uid' => $refund_response->getUid()
+      )
+    );
+
     uc_payment_enter($order->order_id, 'begateway', -1 * $price, 1, NULL, $comment);
     uc_cart_complete_sale($order);
     uc_order_update_status($order->order_id, 'completed');
@@ -346,7 +357,6 @@ function uc_begateway_refund_form_submit($form, &$form_state) {
   drupal_goto('/admin/config/uc_begateway/orders');
 
 }
-
 
 /**
  * Capture confirmation transaction.
@@ -404,7 +414,7 @@ function uc_begateway_capture_form_validate($form, &$form_state) {
   $value = $query->fetchAssoc();
 
   if (!is_numeric($form['amount']['#value']) || $form['amount']['#value'] <= 0) {
-    form_set_error('amount', t('You must specify a positive numeric amount to captured.'));
+    form_set_error('amount', t('You must specify a positive numeric amount to capture.'));
     return FALSE;
   }
 
@@ -414,7 +424,6 @@ function uc_begateway_capture_form_validate($form, &$form_state) {
   }
 
 }
-
 
 /**
  * Capture transaction.
@@ -467,7 +476,13 @@ function uc_begateway_capture_form_submit($form, &$form_state) {
     ))->condition('id', $id)->execute();
     drupal_set_message(t("Captured successfully.") . ' ' . t('UID: ') . $capture_response->getUid());
 
-    $comment = t('Transaction ID: @PayId, Captured: ' . uc_currency_format($price, $order->currency .' ').' Remote ID: '.$capture_response->getUid(), array('@PayId' => $order->order_id));
+    $comment = t('Transaction ID: @PayId. Captured: @CapturedAmount. Remote ID: @Uid',
+      array(
+        '@PayId' => $order->order_id,
+        '@RefundedAmount' => uc_currency_format($price, $order->currency . ' '),
+        '@Uid' => $capture_response->getUid()
+      )
+    );
     uc_payment_enter($order->order_id, 'begateway', $price, 1, NULL, $comment);
     uc_cart_complete_sale($order);
 
@@ -481,7 +496,6 @@ function uc_begateway_capture_form_submit($form, &$form_state) {
   drupal_goto('/admin/config/uc_begateway/orders');
 
 }
-
 
 /**
  * Void confirmation transactions.
@@ -560,7 +574,13 @@ function uc_begateway_void_form_submit($form, &$form_state) {
       'flag' => '0',
     ))->condition('id', $id)->execute();
 
-    $comment = t('Transaction ID: @PayId, Void: ' . uc_currency_format($order->order_total, $order->currency . ' Remote ID: '.$void_response->getUid()), array('@PayId' => $order->order_id));
+    $comment = t('Transaction ID: @PayId. Void: @VoidAmount. Remote ID: @Uid',
+      array(
+        '@PayId' => $order->order_id,
+        '@VoidAmount' => uc_currency_format($price, $order->currency . ' '),
+        '@Uid' => $void_response->getUid()
+      )
+    );
     uc_payment_enter($order->order_id, 'begateway', 0, 1, NULL, $comment);
     uc_cart_complete_sale($order);
 
@@ -575,7 +595,6 @@ function uc_begateway_void_form_submit($form, &$form_state) {
 
   drupal_goto('/admin/config/uc_begateway/orders');
 }
-
 
 /**
  * Implements hook_uc_payment_method().
@@ -593,7 +612,6 @@ function uc_begateway_uc_payment_method() {
   return $methods;
 }
 
-
 /**
  * Implements hook_uc_payment_method().
  *
@@ -604,6 +622,11 @@ function uc_begateway_uc_payment_method() {
  * @return null
  */
 function uc_begateway_uc_payment_method_callback($op, &$order, $form = NULL, &$form_state = NULL) {
+  $days = array();
+  for ($i=1;$i<32;$i++) {
+    $days[$i] = $i;
+  }
+
   switch ($op) {
 
     case 'settings':
@@ -647,6 +670,45 @@ function uc_begateway_uc_payment_method_callback($op, &$order, $form = NULL, &$f
           'two' => t('Payment'),
         )
       );
+      $form['order_expiry_days'] = array(
+        '#type' => 'select',
+        '#title' => t('How many days an order is valid for payment'),
+        '#options' => $days,
+        '#default_value' => variable_get('order_expiry_days', '3')
+      );
+      $form['card_enable'] = array(
+        '#type' => 'radios',
+        '#title' => t('Enable bankcard payments'),
+        '#default_value' => variable_get('card_enable', 0),
+        '#options' => array(
+          t('Yes'),
+          t('No'),
+        )
+      );
+      $form['card_halva_enable'] = array(
+        '#type' => 'radios',
+        '#title' => t('Enable Halva bankcard payments'),
+        '#default_value' => variable_get('card_halva_enable', 1),
+        '#options' => array(
+          t('Yes'),
+          t('No'),
+        )
+      );
+      $form['erip_enable'] = array(
+        '#type' => 'radios',
+        '#title' => t('Enable ERIP'),
+        '#default_value' => variable_get('erip_enable', 1),
+        '#options' => array(
+          t('Yes'),
+          t('No'),
+        )
+      );
+      $form['erip_service_no'] = array(
+        '#type' => 'textfield',
+        '#title' => t('ERIP service No'),
+        '#default_value' => variable_get('erip_service_no', '99999999'),
+      );
+
       return $form;
   }
 }
@@ -694,7 +756,27 @@ function uc_begateway_form($form, &$form_state, $order) {
   $transaction->setDeclineUrl(url('cart/checkout/review', array('absolute' => TRUE)));
   $transaction->setFailUrl(url('cart/checkout/review', array('absolute' => TRUE)));
   $transaction->setCancelUrl(url('cart/checkout/review', array('absolute' => TRUE)));
+  $transaction->setExpiryDate(date("Y-m-d", (variable_get('order_expiry_days')+1)*24*3600 + time()));
+  $transaction->setTrackingId($order->order_id);
 
+  if (variable_get('card_enable') == 0) {
+    $cc = new \beGateway\PaymentMethod\CreditCard;
+    $transaction->addPaymentMethod($cc);
+  }
+
+  if (variable_get('card_halva_enable') == 0) {
+    $halva = new \beGateway\PaymentMethod\CreditCardHalva;
+    $transaction->addPaymentMethod($halva);
+  }
+
+  if (variable_get('erip_enable') == 0) {
+    $erip = new \beGateway\PaymentMethod\Erip(array(
+      'order_id' => $order->order_id,
+      'account_number' => strval($order->order_id),
+      'service_no' => variable_get('erip_service_no')
+    ));
+    $transaction->addPaymentMethod($erip);
+  }
 
   $transaction->customer->setFirstName($order->billing_first_name);
   $transaction->customer->setLastName($order->billing_last_name);
@@ -709,7 +791,6 @@ function uc_begateway_form($form, &$form_state, $order) {
   $transaction->customer->setCity($order->billing_city);
   $transaction->customer->setZip($order->billing_postal_code);
   $transaction->customer->setEmail($order->primary_email);
-  $transaction->setAddressHidden();
 
   $response = $transaction->submit();
 
@@ -722,7 +803,7 @@ function uc_begateway_form($form, &$form_state, $order) {
       '#value' => t('Submit Order'),
     );
   } else {
-    watchdog('commerce_payment_begateway', 'The website failed to get a payment token', array(), WATCHDOG_ERROR);
+    watchdog('ubercart_payment_begateway', 'The website failed to get a payment token', array(), WATCHDOG_ERROR);
     drupal_set_message(t('The payment gateway is currently unavailable, please chose another payment method, or contact an administrator.'), 'error');
     drupal_set_message($response->getMessage(),'error');
     drupal_goto('cart/checkout');
