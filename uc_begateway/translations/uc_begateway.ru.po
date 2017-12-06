@@ -1,27 +1,28 @@
 # $Id$
 #
 # Russian translation of Drupal (general)
-# Copyright 2017 <admin@ecomcharge.com>
+# Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
 #  uc_begateway.module: n/a
 #  uc_begateway.install: n/a
 #  uc_begateway.info: n/a
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 2.0\n"
-"POT-Creation-Date: 2017-03-13 20:23+0300\n"
-"PO-Revision-Date: 2017-03-13 20:23+0300\n"
-"Last-Translator: beGateway <admin@ecomcharge.com>\n"
-"Language-Team: Russian <admin@ecomcharge.comS>\n"
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2017-03-13 21:51+0300\n"
+"PO-Revision-Date: 2017-03-13 22:03+0300\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Language: ru\n"
+"X-Generator: Poedit 1.8.12\n"
 
 #: uc_begateway.module:95
-msgid "Transaction ID: @PayId, Paid amount: @PaidAmount, Remoted ID: @UID, Payment method: @PayMethod"
+msgid "Transaction ID: @PayId, Paid amount: @PaidAmount, Remote ID: @UID, Payment method: @PayMethod"
 msgstr "Идентификатор операции: @PayId, Оплаченная сумма: @PaidAmount, Идентификатор операции платёжной системы: @UID, Способ оплаты: @PayMethod"
 
 #: uc_begateway.module:124
@@ -38,11 +39,11 @@ msgstr "Создано"
 
 #: uc_begateway.module:127
 msgid "Name/Email"
-msgstr "Имя/е-мэйл"
+msgstr "Имя/Email"
 
 #: uc_begateway.module:128
 msgid "Remote uid"
-msgstr "Идентификатор платёжной системы"
+msgstr "UID платёжной системы"
 
 #: uc_begateway.module:129
 msgid "Price"
@@ -60,185 +61,197 @@ msgstr "Статус"
 msgid "Operation"
 msgstr "Действие"
 
-#: uc_begateway.module:193
-msgid "Ubercart order: @id"
-msgstr "Ubercart заказ: @id"
-
-#: uc_begateway.module:197
-msgid "Order amount: @amount"
-msgstr "Сумма заказа"
-
-#: uc_begateway.module:205
-msgid "There are no orders yet. Please create one."
-msgstr "Нет заказов."
-
-#: uc_begateway.module:240;249
-msgid "Refund amount (Capture amount: @total )"
-msgstr "Сумма возврата (Сумма списания: @total )"
-
-#: uc_begateway.module:254
-msgid "Are you sure you want to issue a refund?"
-msgstr "Вы уверены, что хотите оформить возврат?"
-
-#: uc_begateway.module:254;9
+#: uc_begateway.module:161;175;183;253;9
 msgid "Refund"
 msgstr "Возврат"
 
-#: uc_begateway.module:254;380;514
+#: uc_begateway.module:166;386;15
+msgid "Capture"
+msgstr "Списать"
+
+#: uc_begateway.module:169;526;21
+msgid "Void"
+msgstr "Аннулировать"
+
+#: uc_begateway.module:192
+msgid "Ubercart order: @id"
+msgstr "Ubercart заказ: @id"
+
+#: uc_begateway.module:196
+msgid "Order amount: @amount"
+msgstr "Сумма заказа: @amount"
+
+#: uc_begateway.module:204
+msgid "There are no orders yet. Please create one."
+msgstr "Заказов пока нет. Пожалуйста, создайте один."
+
+#: uc_begateway.module:239;248
+msgid "Refund amount (Capture amount: @total )"
+msgstr "Сумма возврата (Списанная сумма: @total )"
+
+#: uc_begateway.module:253
+msgid "Are you sure you want to issue a refund?"
+msgstr "Вы уверены, что хотите оформить возврат?"
+
+#: uc_begateway.module:253;386;526
 msgid "Cancel"
 msgstr "Отмена"
 
-#: uc_begateway.module:281
+#: uc_begateway.module:280
 msgid "You must specify a positive numeric amount to refund."
 msgstr "Вы должны указать положительное числовое значение."
 
-#: uc_begateway.module:286
+#: uc_begateway.module:285
 msgid "You cannot refund more than you payed through beGateway."
-msgstr "Вы не можете вернуть больше, чем вы заплатили через beGateway."
+msgstr "Вы не можете вернуть больше, чем было оплачено."
 
-#: uc_begateway.module:334
+#: uc_begateway.module:333
 msgid "Refunded successfully."
 msgstr "Возврат средств успешен."
 
-#: uc_begateway.module:334;466;566
+#: uc_begateway.module:333;472;584
 msgid "UID: "
 msgstr "UID: "
 
-#: uc_begateway.module:343
+#: uc_begateway.module:335
+msgid "Transaction ID: @PayId. Refunded: @RefundedAmount. Remote ID: @Uid"
+msgstr "Идентификатор: @PayId. Возвращено: @RefundedAmount. Идентификатор платёжной системы: @Uid"
+
+#: uc_begateway.module:349
 msgid "Refund error:"
 msgstr "Ошибка возврата средств:"
 
-#: uc_begateway.module:376
+#: uc_begateway.module:382
 msgid "Capture amount (Order amount: @total)"
 msgstr "Сумма списания (Сумма заказа: @total)"
 
-#: uc_begateway.module:380
+#: uc_begateway.module:386
 msgid "Are you sure you want to issue a capture?"
-msgstr "Вы уверены, что хотите сделать списание?"
+msgstr "Вы уверены, что хотите списать средства?"
 
-#: uc_begateway.module:380;15
-msgid "Capture"
-msgstr "Списание"
-
-#: uc_begateway.module:406
+#: uc_begateway.module:412
 msgid "You must specify a positive numeric amount to captured."
 msgstr "Вы должны указать положительное числовое значение."
 
-#: uc_begateway.module:411
+#: uc_begateway.module:417
 msgid "You cannot capture more than it was authorized through beGateway."
-msgstr "Вы не можете захватить больше, чем было разрешено через beGateway."
+msgstr "Вы не можете списать больше, чем было заблокировано."
 
-#: uc_begateway.module:466
+#: uc_begateway.module:472
 msgid "Captured successfully."
 msgstr "Списано успешно."
 
-#: uc_begateway.module:476
+#: uc_begateway.module:474
+msgid "Transaction ID: @PayId. Captured: @CapturedAmount. Remote ID: @Uid"
+msgstr "Идентификатор: @PayId. Списанная сумма: @CapturedAmount. Идентификатор платежной системы: @Uid"
+
+#: uc_begateway.module:488
 msgid "Capture error:"
 msgstr "Ошибка списания:"
 
-#: uc_begateway.module:509
+#: uc_begateway.module:521
 msgid "Void amount"
 msgstr "Сумма аннулирования"
 
-#: uc_begateway.module:514
+#: uc_begateway.module:526
 msgid "Are you sure you want to issue a void?"
-msgstr "Вы уверены, что хотите отменить авторизацию?"
+msgstr "Вы уверены, что хотите аннулировать заказ?"
 
-#: uc_begateway.module:514;21
-msgid "Void"
-msgstr "Отмена авторизации"
+#: uc_begateway.module:572
+msgid "Transaction ID: @PayId. Void: @VoidAmount. Remote ID: @Uid"
+msgstr "Идентификатор: @PayId. Аннулированная сумма: @VoidAmount. Идентификатор платежной системы: @Uid"
 
-#: uc_begateway.module:566
+#: uc_begateway.module:584
 msgid "Voided successfully."
-msgstr "Авторизация средств отменен"
+msgstr "Авторизация средств отменена"
 
-#: uc_begateway.module:570
+#: uc_begateway.module:588
 msgid "Void error:"
 msgstr "Ошибка отмены авторизации:"
 
-#: uc_begateway.module:613
+#: uc_begateway.module:631
 msgid "Display payment name"
-msgstr "Имя способа оплат"
+msgstr "Имя способа оплаты для клиента"
 
-#: uc_begateway.module:619
+#: uc_begateway.module:637
 msgid "Shop ID"
-msgstr "Идентификационный номер магазина"
+msgstr "Id магазина"
 
-#: uc_begateway.module:625
+#: uc_begateway.module:643
 msgid "Shop Key"
 msgstr "Секретный ключ магазина"
 
-#: uc_begateway.module:631
+#: uc_begateway.module:649
 msgid "Payment gateway domain"
 msgstr "Домен платежного шлюза"
 
-#: uc_begateway.module:637
+#: uc_begateway.module:655
 msgid "Checkout page domain"
 msgstr "Домен платежной страницы"
 
-#: uc_begateway.module:643
+#: uc_begateway.module:661
 msgid "Type transaction"
-msgstr "Тип транзакции"
+msgstr "Тип операции"
 
-#: uc_begateway.module:646
+#: uc_begateway.module:664
 msgid "Authorization"
 msgstr "Авторизация"
 
-#: uc_begateway.module:647
+#: uc_begateway.module:665
 msgid "Payment"
 msgstr "Оплата"
 
-#: uc_begateway.module:652
+#: uc_begateway.module:670
 msgid "How many days an order is valid for payment"
-msgstr "Количество дней, за которые должны оплатить заказ"
+msgstr "Время на оплату заказа (дней)"
 
-#: uc_begateway.module:658
+#: uc_begateway.module:676
 msgid "Enable bankcard payments"
 msgstr "Включить оплату банковской картой"
 
-#: uc_begateway.module:661;670;679
+#: uc_begateway.module:679;688;697
 msgid "Yes"
 msgstr "Да"
 
-#: uc_begateway.module:662;671;680
+#: uc_begateway.module:680;689;698
 msgid "No"
 msgstr "Нет"
 
-#: uc_begateway.module:667
-msgid "Enable Halva bankcard payments"
-msgstr "Включить оплату картой Халва"
-
-#: uc_begateway.module:676
-msgid "Enable ERIP"
-msgstr "Включить оплату через ЕРИП"
-
 #: uc_begateway.module:685
+msgid "Enable Halva bankcard payments"
+msgstr "Включить оплату банковской картой Халва"
+
+#: uc_begateway.module:694
+msgid "Enable ERIP"
+msgstr "Включить ЕРИП"
+
+#: uc_begateway.module:703
 msgid "ERIP service No"
 msgstr "Код услуги ЕРИП"
 
-#: uc_begateway.module:726
+#: uc_begateway.module:744
 msgid "Order #"
 msgstr "Заказ #"
 
-#: uc_begateway.module:781
+#: uc_begateway.module:799
 msgid "Submit Order"
-msgstr "Оплатить заказ"
+msgstr "Оформить заказ"
 
-#: uc_begateway.module:785
+#: uc_begateway.module:803
 msgid "The payment gateway is currently unavailable, please chose another payment method, or contact an administrator."
 msgstr "Платёжная система временно не доступна. Выберите другой способ оплаты или свяжитесь с администратором магазина."
 
-#: uc_begateway.module:784
+#: uc_begateway.module:802
 msgid "ubercart_payment_begateway"
-msgstr ""
+msgstr "ubercart_payment_begateway"
 
-#: uc_begateway.module:784
+#: uc_begateway.module:802
 msgid "The website failed to get a payment token"
 msgstr "Ошибка получения токена на оплату"
 
 #: uc_begateway.module:27
 msgid "beGateway orders"
-msgstr "Заказы beGateway"
+msgstr "Список заказов"
 
 #: uc_begateway.module:28
 msgid "List of beGateway orders"
@@ -246,11 +259,11 @@ msgstr "Список заказов beGateway"
 
 #: uc_begateway.module:35
 msgid "Order complete"
-msgstr "Заказ оформлен"
+msgstr "Заказ выполнен"
 
 #: (duplicate) uc_begateway.install:18
 msgid "beGateway API library"
-msgstr "Библиотека beGateway API"
+msgstr "beGateway API библиотека"
 
 #: uc_begateway.info:0
 msgid "beGateway"
@@ -258,7 +271,7 @@ msgstr "beGateway"
 
 #: uc_begateway.info:0
 msgid "Enables support for beGateway payments at checkout."
-msgstr "Включить оплату через систему beGateway"
+msgstr "Включает платежи через платформу beGateway."
 
 #: uc_begateway.info:0
 msgid "Ubercart - payment"
