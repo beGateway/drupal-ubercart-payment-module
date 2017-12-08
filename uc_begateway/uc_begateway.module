@@ -53,12 +53,12 @@ function uc_begateway_menu() {
 function uc_begateway_notification() {
   libraries_load('beGateway');
 
-  \beGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
-  \beGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
-  \beGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
-  \beGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
+  \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
+  \BeGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
+  \BeGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
+  \BeGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
 
-  $webhook = new \beGateway\Webhook;
+  $webhook = new \BeGateway\Webhook;
 
   $order_id = intval($webhook->getTrackingId());
   $order = uc_order_load($order_id);
@@ -92,7 +92,7 @@ function uc_begateway_notification() {
           'flag' => '1',
         ))->execute();
 
-        $money = new \beGateway\Money;
+        $money = new \BeGateway\Money;
 
         $money->setCents($webhook->getResponse()->transaction->amount);
         $money->setCurrency($webhook->getResponse()->transaction->currency);
@@ -314,14 +314,14 @@ function uc_begateway_refund_form_submit($form, &$form_state) {
   $order = uc_order_load($value['order_id']);
   libraries_load('beGateway');
 
-  \beGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
-  \beGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
-  \beGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
-  \beGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
+  \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
+  \BeGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
+  \BeGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
+  \BeGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
 
   $price = $form['amount']['#value'];
 
-  $refund = new \beGateway\Refund;
+  $refund = new \BeGateway\Refund;
   $refund->setParentUid($value['parent_uid']);
   $refund->money->setAmount($price);
   $refund->setReason('customer request');
@@ -448,14 +448,14 @@ function uc_begateway_capture_form_submit($form, &$form_state) {
 
   $order = uc_order_load($value['order_id']);
 
-  \beGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
-  \beGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
-  \beGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
-  \beGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
+  \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
+  \BeGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
+  \BeGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
+  \BeGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
 
   $price = $form['amount']['#value'];
 
-  $capture = new \beGateway\Capture;
+  $capture = new \BeGateway\Capture;
   $capture->setParentUid($value['parent_uid']);
   $capture->money->setAmount($value['price']);
   $capture_response = $capture->submit();
@@ -545,10 +545,10 @@ function uc_begateway_void_form_submit($form, &$form_state) {
   $id = $form_state['order_id'];
   libraries_load('beGateway');
 
-  \beGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
-  \beGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
-  \beGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
-  \beGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
+  \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
+  \BeGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
+  \BeGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url', '');
+  \BeGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url', '');
 
   $query = db_select('begateway_payments', 't')->fields('t', array(
     'id',
@@ -560,7 +560,7 @@ function uc_begateway_void_form_submit($form, &$form_state) {
 
   $value = $query->fetchAssoc();
   $order = uc_order_load($value['order_id']);
-  $void = new \beGateway\Void;
+  $void = new \BeGateway\Void;
   $void->setParentUid($value['parent_uid']);
   $void->money->setAmount($value['price'] / 100);
   $void_response = $void->submit();
@@ -726,12 +726,12 @@ function uc_begateway_form($form, &$form_state, $order) {
   libraries_load('beGateway');
   global $language;
 
-  \beGateway\Settings::$shopKey = variable_get('begateway_shop_key');
-  \beGateway\Settings::$shopId = variable_get('begateway_shop_id');
-  \beGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url');
-  \beGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url');
+  \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key');
+  \BeGateway\Settings::$shopId = variable_get('begateway_shop_id');
+  \BeGateway\Settings::$gatewayBase = 'https://' . variable_get('begateway_payment_gateway_url');
+  \BeGateway\Settings::$checkoutBase = 'https://' . variable_get('begateway_checkout_page_url');
 
-  $transaction = new \beGateway\GetPaymentToken;
+  $transaction = new \BeGateway\GetPaymentToken;
 
   if (variable_get('begateway_trans_type') != 'one') {
     $transaction->setPaymentTransactionType();
@@ -760,17 +760,17 @@ function uc_begateway_form($form, &$form_state, $order) {
   $transaction->setTrackingId($order->order_id);
 
   if (variable_get('card_enable') == 0) {
-    $cc = new \beGateway\PaymentMethod\CreditCard;
+    $cc = new \BeGateway\PaymentMethod\CreditCard;
     $transaction->addPaymentMethod($cc);
   }
 
   if (variable_get('card_halva_enable') == 0) {
-    $halva = new \beGateway\PaymentMethod\CreditCardHalva;
+    $halva = new \BeGateway\PaymentMethod\CreditCardHalva;
     $transaction->addPaymentMethod($halva);
   }
 
   if (variable_get('erip_enable') == 0) {
-    $erip = new \beGateway\PaymentMethod\Erip(array(
+    $erip = new \BeGateway\PaymentMethod\Erip(array(
       'order_id' => $order->order_id,
       'account_number' => strval($order->order_id),
       'service_no' => variable_get('erip_service_no')
