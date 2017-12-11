@@ -51,7 +51,7 @@ function uc_begateway_menu() {
  * Handling Notification_URL.
  */
 function uc_begateway_notification() {
-  libraries_load('beGateway');
+  libraries_load('BeGateway');
 
   \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
   \BeGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
@@ -312,7 +312,7 @@ function uc_begateway_refund_form_submit($form, &$form_state) {
   ))->condition('t.id', $id)->execute();
   $value = $query->fetchAssoc();
   $order = uc_order_load($value['order_id']);
-  libraries_load('beGateway');
+  libraries_load('BeGateway');
 
   \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
   \BeGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
@@ -444,7 +444,7 @@ function uc_begateway_capture_form_submit($form, &$form_state) {
     'order_id'
   ))->condition('t.id', $id)->execute();
   $value = $query->fetchAssoc();
-  libraries_load('beGateway');
+  libraries_load('BeGateway');
 
   $order = uc_order_load($value['order_id']);
 
@@ -543,7 +543,7 @@ function uc_begateway_void_form($form, &$form_state, $order_id) {
 function uc_begateway_void_form_submit($form, &$form_state) {
 
   $id = $form_state['order_id'];
-  libraries_load('beGateway');
+  libraries_load('BeGateway');
 
   \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key', '');
   \BeGateway\Settings::$shopId = variable_get('begateway_shop_id', '');
@@ -723,7 +723,7 @@ function uc_begateway_uc_payment_method_callback($op, &$order, $form = NULL, &$f
  */
 function uc_begateway_form($form, &$form_state, $order) {
 
-  libraries_load('beGateway');
+  libraries_load('BeGateway');
   global $language;
 
   \BeGateway\Settings::$shopKey = variable_get('begateway_shop_key');
@@ -826,17 +826,17 @@ function uc_begateway_complete() {
  * Implements hook_libraries_info().
  */
 function uc_begateway_libraries_info() {
-  $libraries['beGateway'] = array(
-    'name' => 'beGateway PHP library',
-    'vendor url' => 'https://github.com/beGateway/begateway-api-php/tree/master',
-    'download url' => 'https://github.com/beGateway/begateway-api-php/tree/master',
+  $libraries['BeGateway'] = array(
+    'name' => 'BeGateway PHP library',
+    'vendor url' => 'https://github.com/begateway/begateway-api-php/tree/master',
+    'download url' => 'https://github.com/begateway/begateway-api-php/tree/master',
     'version arguments' => array(
       'file' => 'VERSION',
       'pattern' => '/^(.+)/'
     ),
     'files' => array(
       'php' => array(
-        'lib/beGateway.php',
+        'lib/BeGateway.php',
       ),
     ),
   );
